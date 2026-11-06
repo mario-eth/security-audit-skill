@@ -28,16 +28,24 @@ unavailable or fails, do not use that file as evidence.
    normalization, lifecycle, framework, and containment controls on the path.
    Where the architecture summary names a comparable baseline, note whether it
    shares the pattern — as calibration, never as grounds to dismiss.
-3. For a proposed confirmed candidate, independently reproduce the minimum observed
+3. For a multi-step chain, mark every link from entrypoint to sink as observed,
+   inferred, or assumed, and test the weakest handoff first: the cheapest
+   permitted check that could break an assumed link decides it, and step 4's
+   reproduction is one such check. A chain that keeps an untested assumed link
+   is needs_validation with that link as the blocker. Name the strongest
+   plausible benign explanation — an intended control, a different caller, a
+   sanitizing consumer — and what observation eliminates it; if no permitted
+   observation can, that missing fact is the blocker.
+4. For a proposed confirmed candidate, independently reproduce the minimum observed
    result when possible. Verify inputs, interface shape, conditions, and affected
    dummy principal/resource. Do not infer a stronger result or continue after it.
-4. Verify that likelihood, impact, confidence, and the proposed source fix match only
+5. Verify that likelihood, impact, confidence, and the proposed source fix match only
    what the evidence establishes.
-5. For a proposed needs_validation candidate, decide whether the blocker is genuinely
+6. For a proposed needs_validation candidate, decide whether the blocker is genuinely
    outside source/local observation. If source refutes the trace, reject it. If the
    missing fact remains decisive, keep needs_validation and make the local and
    owner-observed plans exact and non-destructive.
-6. Preserve the fingerprint for the same source-derived root cause across every state.
+7. Preserve the fingerprint for the same source-derived root cause across every state.
 
 Return exactly one JSON object and no surrounding prose:
 {"decision": "confirmed|needs_validation|rejected", "record": { ... }}

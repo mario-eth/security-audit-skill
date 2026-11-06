@@ -75,13 +75,14 @@ State paths and source refs used in `run-metadata.json`. Summarize only the cove
 The parent synthesizes `<output-dir>/architecture.md`, with a hard cap of about 1,000 words. Include:
 
 1. Product, principals, normal authority, and protected resources.
-2. The comparable-software baseline from Agent 1a, when one is source-grounded: what security trade-offs the comparable accepts. Use it to calibrate effort and severity, never to dismiss a demonstrated finding; if the comparable shares a defect pattern that has mattered in practice, that strengthens the finding. Omit this line when no meaningful comparable exists.
-3. Tech stack, source-visible deployment paths, and offline build/test limits.
-4. Entry surfaces and the important source-to-sink or lifecycle paths.
-5. Trust boundaries and the strongest source-visible control on each.
-6. Repository-relative starting paths.
-7. Prior coverage gaps, changed-source and blocked revalidation targets, and same-source confirmed exclusions.
-8. A short companion-selection summary derived from [ATTACK-CLASSES.md](ATTACK-CLASSES.md): selected files and the source-visible boundaries that require them.
+2. The crown jewels: from the protected resources above, the few whose compromise matters most — credentials and key material, other tenants' data, funds or irreversible state, release or control-plane authority, physical safety — each with the keystone control it relies on. Name the control that, if weaker than its consumers assume, unprotects the most; coverage must challenge that keystone directly, not merely note that it appears.
+3. The comparable-software baseline from Agent 1a, when one is source-grounded: what security trade-offs the comparable accepts. Use it to calibrate effort and severity, never to dismiss a demonstrated finding; if the comparable shares a defect pattern that has mattered in practice, that strengthens the finding. Omit this line when no meaningful comparable exists.
+4. Tech stack, source-visible deployment paths, and offline build/test limits.
+5. Entry surfaces and the important source-to-sink or lifecycle paths.
+6. Trust boundaries and the strongest source-visible control on each.
+7. Repository-relative starting paths.
+8. Prior coverage gaps, changed-source and blocked revalidation targets, and same-source confirmed exclusions.
+9. A short companion-selection summary derived from [ATTACK-CLASSES.md](ATTACK-CLASSES.md): selected files and the source-visible boundaries that require them.
 
 Keep the assignment-level ordinary block, selected companion blocks, and excluded blocks with reasons in each ledger unit, not in `architecture.md`. This keeps the architecture cap valid for large runs and makes the exact hunter prompt map machine-checkable.
 
@@ -90,6 +91,8 @@ Do not select a companion file merely because the language or dependency name ap
 ## Deterministic coverage ledger
 
 The parent writes `<output-dir>/coverage-ledger.json` as a top-level JSON array. Derive one unit for every material combination of entry surface, trust boundary, subsystem, and applicable ordinary or companion attack class at the granularity the run profile sets (`quick` uses one all-in-scope subsystem identity; `deep` adds lifecycle modes). For a scoped run, seed in-scope surfaces for assignment and retain discovered excluded surfaces as `out_of_scope` units so later full runs can turn them into current work.
+
+Seed the ledger in two directions, not one. Forward, from the entry-surface inventory above. Backward, from each crown jewel named in `architecture.md`: derive at least one unit per jewel whose attack class challenges the keystone control itself — the exact guarantee downstream code assumes — even where no forward surface suggested it. A backward unit uses the jewel's custody point in source, where the asset is stored, defined, or issued, as its surface reference and the keystone control as its boundary reference. Before writing the ledger, drop a backward unit whose boundary and attack class already match a seeded forward unit and record the jewel in that unit's bookkeeping instead. The backward units that survive are the high-value paths an entry-first inventory misses.
 
 Each dimension has a human label and a stable source-derived value in `canonical_refs`. Use the same canonical reference for the same source object across runs even if its display label changes. Suitable references include a repository-relative entry path plus exported scope, a route or message identity defined in source, the source control that defines a boundary, a repository package path, and the exact attack-class block reference. A block reference is `FILE.md#` plus the exact class name as written in bold or as a heading in that file — a stable identifier matched against the file text, not a rendered HTML anchor. For companion section blocks, use the heading text before any parenthetical qualifier (for example `Core discipline`). Do not derive references by lowercasing or slugging display labels.
 

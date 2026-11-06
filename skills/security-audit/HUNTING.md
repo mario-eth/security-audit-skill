@@ -4,7 +4,7 @@
 
 The parent assigns `planned` ledger units to `general` agents. Use enough focused hunters to cover the units without combining unrelated boundaries. One hunter may own closely related units in one subsystem; no unit may be silently unassigned because of an agent-count limit — a unit the budget cannot reach is explicitly `deferred` with reason `budget_cannot_reserve_critics_and_validation`.
 
-When a budget or profile caps hunter count, assign units in priority order and record the ordering rationale in the ledger. Rank by: (1) unauthenticated or lowest-trust entry surfaces before authenticated ones; (2) boundaries protecting the most valuable resources (credentials, cross-tenant data, code execution, release authority); (3) prior-run gaps, revalidation targets, and changed source before same-source re-passes; (4) units whose class historically yields confirmed findings for this target type over speculative ones. Ties break lexicographically by `coverage_id` so runs stay deterministic.
+When a budget or profile caps hunter count, assign units in priority order and record the ordering rationale in the ledger. Rank by: (1) unauthenticated or lowest-trust entry surfaces before authenticated ones, with a backward-seeded unit ranked by the lowest caller trust its keystone control accepts; (2) boundaries protecting the most valuable resources, with the crown jewels named in `architecture.md` ranked ahead of generic value (credentials, cross-tenant data, code execution, release authority); (3) prior-run gaps, revalidation targets, and changed source before same-source re-passes; (4) units whose class historically yields confirmed findings for this target type over speculative ones. Ties break lexicographically by `coverage_id` so runs stay deterministic.
 
 Before launch, the parent changes assigned units to `in_progress`, sets a canonical lowercase `agent_id`, and creates that agent's `scratch/` and parent-owned `artifacts/`. Hunters read source and parent-provided context, write only to their unique `scratch/`, and return one structured result through the Task tool. They never write retained artifacts or edit target source, `architecture.md`, `coverage-ledger.json`, `findings.json`, or another agent's files.
 
@@ -60,7 +60,22 @@ over-limit, duplicate, mixed encoding, stale, revoked, reordered, concurrent,
 partially migrated, failed dependency, and rollback state only where the interface
 accepts them. Compare canonicalization and units at every parser or policy handoff.
 For multi-step issues, treat each output as a prerequisite and do not assume a later
-boundary. If any prerequisite is not established, record a blocker.
+boundary. At every handoff, verify that identity, authority, state, and ordering
+carry over compatibly with what the next step assumes; a plausible bridge between
+two steps is a hypothesis until that handoff is checked. If any prerequisite is not
+established, record a blocker.
+
+REASON BEFORE YOU RUN. Settle the cheap questions in source before writing any
+harness, fixture, or PoC: can the input reach the effect at all, who actually
+calls this, which guards and configuration stand in the way, what state and
+ordering does it depend on, which boundary values does the interface accept,
+and what sibling paths produce the same effect. Abandon a path once a
+prerequisite decisively fails it — a refuted claim earns no reproducer. For
+every candidate signal, hold its strongest plausible benign explanation — an
+intended control, a different caller, a sanitizing consumer — beside the attack
+hypothesis, and choose the cheapest permitted observation that distinguishes
+the two. If no permitted observation can distinguish them, record that exact
+fact as a needs_validation blocker instead of guessing.
 
 When a proposed high or critical candidate reveals a reusable root cause, search paths
 owned by the assigned coverage IDs for lexical, structural, and logical variants.
@@ -153,7 +168,11 @@ file separately:
 6. Use the same source-derived fingerprint for the same root cause in every state.
    It must match `^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$` and must not include a line,
    wave, agent, severity, or verdict.
-7. Return an empty candidate array when nothing survives these gates.
+7. A proposed multi-step confirmed record must carry its entrypoint-to-effect
+   chain with each link marked observed, inferred, or assumed and no untested
+   assumed link left; if one remains, return needs_validation with that link
+   as a blocker.
+8. Return an empty candidate array when nothing survives these gates.
 ```
 
 ## Local validation boundaries
