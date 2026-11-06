@@ -2,7 +2,9 @@
 
 A coding-agent skill that turns your agent into a security auditor. It orchestrates isolated agents through reconnaissance, coverage-led hunting, candidate validation, structured output, independent record verification, and target-neutral reporting.
 
-This is the skill that seeded Cloudflare's vulnerability discovery harness, described in [Build your own vulnerability harness](https://blog.cloudflare.com/build-your-own-vulnerability-harness). The harness grew into a multi-stage, fleet-wide system; this skill is the single-repo starting point it evolved from.
+This is an independent fork of [Cloudflare's security-audit skill](https://github.com/cloudflare/security-audit-skill), which seeded the harness described in [Build your own vulnerability harness](https://blog.cloudflare.com/build-your-own-vulnerability-harness). Cloudflare's MIT license and attribution are retained.
+
+This fork adds a small set of source-review techniques: asset-led coverage checks, reasoning before new reproducers, competing benign explanations, and explicit evidence for multi-step handoffs. It retains the upstream sandbox, independent verification, and reporting contracts. These prompt changes have not been benchmarked for finding quality or runtime savings.
 
 ## What it does
 
@@ -51,14 +53,14 @@ Multiple runs against the same repo are additive. The skill uses prior ledgers a
 Install the skill with the [Skills CLI](https://skills.sh):
 
 ```bash
-npx skills add https://github.com/cloudflare/security-audit-skill \
+npx skills add https://github.com/mario-eth/security-audit-skill \
   --skill security-audit
 ```
 
 Use `--global` for a user-level installation:
 
 ```bash
-npx skills add https://github.com/cloudflare/security-audit-skill \
+npx skills add https://github.com/mario-eth/security-audit-skill \
   --skill security-audit \
   --global
 ```
@@ -95,11 +97,11 @@ The skill activates automatically when the request matches its trigger (security
 - **Adversarial validation.** The agent that checks a finding is never the agent that found it.
 - **Severity requires impact.** Likelihood x impact, not deviation from a checklist.
 - **Defense-in-depth gaps are not vulnerabilities.** If Layer A prevents the attack, the absence of Layer B is a hardening note.
-- **Multiple runs improve coverage.** In our test runs, a single run found roughly half of the vulnerabilities that repeated runs found in total.
+- **Multiple runs can improve coverage.** Revisit recorded gaps and changed source; repeated runs do not establish exhaustive coverage.
 
 ## Contact
 
-Questions, feedback, or comparing notes on AI-driven security tooling: security-ai-research@cloudflare.com
+Fork home: [mario-eth/security-audit-skill](https://github.com/mario-eth/security-audit-skill). For upstream tooling questions, see the [Cloudflare repository](https://github.com/cloudflare/security-audit-skill).
 
 ## License
 
